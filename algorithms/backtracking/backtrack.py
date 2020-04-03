@@ -1,6 +1,15 @@
-from utils import *
+from utilclasses import Permutations, SubSets
+
 
 finished = False
+
+
+def get_utils_class(**kwargs):
+    if kwargs["type"] == "permutations":
+        p = Permutations(**kwargs)
+    if kwargs["type"] == "subsets":
+        p = SubSets(**kwargs)
+    return p
 
 
 def backtrack(a, **kwargs):
@@ -11,19 +20,29 @@ def backtrack(a, **kwargs):
     :return: None
     """
 
+    utilsclass = kwargs.pop("utilsclass", None)
+
+    if utilsclass is None:
+        utilsclass = get_utils_class(**kwargs)
+
     global finished
 
-    if is_a_solution(a, **kwargs):
-        process_solution(a, **kwargs)
+    if utilsclass.is_a_solution(a):
+        utilsclass.process_solution(a)
 
     else:
-        c = construct_candidates(a, **kwargs)
+        c = utilsclass.construct_candidates(a)
         for cand in c:
             ap = a + [cand]
-            make_move(a, **kwargs)
-            backtrack(ap, **kwargs)
-            unmake_move(a, **kwargs)
+            utilsclass.make_move(ap)
+            backtrack(ap, utilsclass=utilsclass)
+            utilsclass.unmake_move(ap)
             if finished:
                 break
 
     return
+
+
+if __name__ == "__main__":
+
+    backtrack([], type="subsets", maxlen=3)
